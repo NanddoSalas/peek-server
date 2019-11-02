@@ -1,9 +1,35 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-type Query {}
-type Mutation {}
-type Subscription {}
+type Query {
+  getNotes: [Note!]!
+}
+
+type Mutation {
+  register(username: String!, password: String!): User!
+  login(username: String!, password: String!): String!
+  createNote(title: String, text: String): Note!
+  deleteNote(id: ID!): Note!
+}
+
+type Subscription {
+  addNote: Note!
+  removeNote: Note!
+}
+
+type User {
+  id: ID!
+  username: String!
+  notes: [Note!]!
+}
+
+type Note {
+  id: ID!
+  title: String
+  text: String
+  createdAt: String!
+  createdBy: User!
+}
 `;
 
 module.exports = typeDefs;
