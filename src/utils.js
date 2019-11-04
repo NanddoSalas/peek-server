@@ -1,4 +1,8 @@
 const { UserInputError } = require('apollo-server');
+const jwt = require('jsonwebtoken');
+const { SECRET } = require('./config');
+const User = require('./models/User');
+
 
 function formatYupError(err) {
   // eslint-disable-next-line prefer-const
@@ -17,5 +21,15 @@ exports.validateInput = async (data, schema) => {
     await schema.validate(data, { abortEarly: false });
   } catch (err) {
     throw new UserInputError('Invalid Input', formatYupError(err));
+  }
+};
+
+exports.getUser = async (token) => {
+  try {
+    const { id } = jwt.verify(token, SECRET);
+    const user = await User.findById(id);
+    return user;
+  } catch (error) {
+    return null;
   }
 };
