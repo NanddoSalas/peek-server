@@ -1,4 +1,5 @@
 // const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 const { ApolloError } = require('apollo-server');
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
@@ -19,4 +20,21 @@ exports.register = async (_, args) => {
   }
 
   return user;
+};
+
+exports.login = async (_, args, { SECRET }) => {
+  const { username, password } = args;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user.checkPassword(password)) throw new ApolloError('Invalid credentials');
+
+    const token = jwt.sign({
+      id: user.id,
+    }, SECRET);
+
+    return token;
+  } catch (error) {
+    throw new ApolloError('Invalid credentials');
+  }
 };
