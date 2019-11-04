@@ -1,9 +1,10 @@
 // const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { ApolloError } = require('apollo-server');
+const { ApolloError, AuthenticationError } = require('apollo-server');
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
+const Note = require('../models/Note');
 
 
 exports.register = async (_, args) => {
@@ -36,5 +37,23 @@ exports.login = async (_, args, { SECRET }) => {
     return token;
   } catch (error) {
     throw new ApolloError('Invalid credentials');
+  }
+};
+
+exports.createNote = async (_, args, { user }) => {
+  if (!user) throw new AuthenticationError('Must authenticate');
+
+  try {
+    const note = await Note.create({
+      ...args,
+      createdBy: user.id,
+    });
+
+    user.notes.push(note.id);
+    await user.save();
+
+    return note;
+  } catch (error) {
+    throw new ApolloError('Some Error');
   }
 };
