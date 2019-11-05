@@ -1,6 +1,6 @@
 // const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { ApolloError, AuthenticationError } = require('apollo-server');
+const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
@@ -56,4 +56,20 @@ exports.createNote = async (_, args, { user }) => {
   } catch (error) {
     throw new ApolloError('Some Error');
   }
+};
+
+exports.deleteNote = async (_, { id }, { user }) => {
+  if (!user) throw new AuthenticationError('Must authenticate');
+
+  const note = await Note.findById(id);
+  if (!note) throw new ApolloError('Some Error');
+  // eslint-disable-next-line eqeqeq
+  if (note.createdBy != user.id) throw new ForbiddenError('Forbidden');
+
+  await Note.deleteOne({ _id: id });
+
+  user.notes.pull(id);
+  await user.save();
+
+  return note;
 };
