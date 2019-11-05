@@ -13,8 +13,8 @@ type Mutation {
 }
 
 type Subscription {
-  addNote: Note!
-  removeNote: Note!
+  noteAdded: Note!
+  noteDeleted: Note!
 }
 
 type User {
