@@ -6,8 +6,8 @@ type Query {
 }
 
 type Mutation {
-  register(username: String!, password: String!): User!
-  login(username: String!, password: String!): String!
+  register(username: String!, password: String!): AuthPayload!
+  login(username: String!, password: String!): AuthPayload!
   createNote(title: String, text: String): Note!
   deleteNote(id: ID!): Note!
 }
@@ -29,6 +29,11 @@ type Note {
   text: String
   createdAt: String!
   createdBy: User!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
 }
 `;
 
