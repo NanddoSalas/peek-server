@@ -8,7 +8,7 @@ const User = require('../models/User');
 const Note = require('../models/Note');
 const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
 
-exports.register = async (_, args) => {
+exports.register = async (_, args, { SECRET }) => {
   await validateInput(args, registerSchema);
   const { username, password } = args;
 
@@ -21,7 +21,11 @@ exports.register = async (_, args) => {
     throw new ApolloError('Some Error');
   }
 
-  return user;
+  const token = jwt.sign({
+    id: user.id,
+  }, SECRET);
+
+  return { token, user };
 };
 
 exports.login = async (_, args, { SECRET }) => {
@@ -35,7 +39,7 @@ exports.login = async (_, args, { SECRET }) => {
       id: user.id,
     }, SECRET);
 
-    return token;
+    return { token, user };
   } catch (error) {
     throw new ApolloError('Invalid credentials');
   }
