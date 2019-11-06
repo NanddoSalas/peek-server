@@ -1,11 +1,12 @@
 // const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server');
+const { ObjectId } = require('mongoose').Types;
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
 const Note = require('../models/Note');
-
+const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
 
 exports.register = async (_, args) => {
   await validateInput(args, registerSchema);
@@ -40,7 +41,7 @@ exports.login = async (_, args, { SECRET }) => {
   }
 };
 
-exports.createNote = async (_, args, { user }) => {
+exports.createNote = async (_, args, { user, pubsub }) => {
   if (!user) throw new AuthenticationError('Must authenticate');
 
   try {
@@ -52,16 +53,20 @@ exports.createNote = async (_, args, { user }) => {
     user.notes.push(note.id);
     await user.save();
 
+    pubsub.publish(NOTE__ADDED, { noteAdded: note });
+
     return note;
   } catch (error) {
     throw new ApolloError('Some Error');
   }
 };
 
-exports.deleteNote = async (_, { id }, { user }) => {
+exports.deleteNote = async (_, { id }, { user, pubsub }) => {
   if (!user) throw new AuthenticationError('Must authenticate');
+  if (!ObjectId.isValid(id)) throw new ApolloError('Some Error');
 
   const note = await Note.findById(id);
+
   if (!note) throw new ApolloError('Some Error');
   // eslint-disable-next-line eqeqeq
   if (note.createdBy != user.id) throw new ForbiddenError('Forbidden');
@@ -70,6 +75,8 @@ exports.deleteNote = async (_, { id }, { user }) => {
 
   user.notes.pull(id);
   await user.save();
+
+  pubsub.publish(NOTE__DELETED, { noteDeleted: note });
 
   return note;
 };
