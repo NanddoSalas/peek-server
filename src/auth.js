@@ -1,6 +1,6 @@
 /* eslint-disable no-empty */
 const { sign, verify } = require('jsonwebtoken');
-const { SECRET } = require('./config');
+const { SECRET, NODE_ENV } = require('./config');
 const User = require('./models/User');
 
 function createTokens(user) {
@@ -22,8 +22,13 @@ function createTokens(user) {
 function setTokens(res, user) {
   const { accesToken, refreshToken } = createTokens(user);
 
-  res.cookie('accesToken', accesToken);
-  res.cookie('refreshToken', refreshToken);
+  const options = {
+    httpOnly: true,
+    secure: NODE_ENV === 'production',
+  };
+
+  res.cookie('accesToken', accesToken, options);
+  res.cookie('refreshToken', refreshToken, options);
 }
 
 async function authMiddleware(req, res, next) {
