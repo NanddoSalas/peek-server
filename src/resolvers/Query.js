@@ -12,3 +12,5 @@ exports.getNotes = (_, __, { user }) => {
     throw new ApolloError('Some Error');
   }
 };
+
+exports.me = (_, __, { user }) => user;
