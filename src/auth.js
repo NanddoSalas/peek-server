@@ -77,8 +77,14 @@ async function authMiddleware(req, res, next) {
   return next();
 }
 
+function clearTokens(res) {
+  res.clearCookie('accesToken');
+  res.clearCookie('refreshToken');
+}
+
 module.exports = {
   createTokens,
   setTokens,
   authMiddleware,
+  clearTokens,
 };
