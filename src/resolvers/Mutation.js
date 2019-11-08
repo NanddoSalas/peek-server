@@ -6,7 +6,7 @@ const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
 const Note = require('../models/Note');
 const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
-const { setTokens } = require('../auth');
+const { setTokens, clearTokens } = require('../auth');
 
 exports.register = async (_, args) => {
   await validateInput(args, registerSchema);
@@ -76,4 +76,9 @@ exports.deleteNote = async (_, { id }, { user, pubsub }) => {
   pubsub.publish(NOTE__DELETED, { noteDeleted: note });
 
   return note;
+};
+
+exports.logout = (_, __, { res }) => {
+  clearTokens(res);
+  return true;
 };
