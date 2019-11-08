@@ -5,19 +5,22 @@ const { SECRET } = require('./config');
 const { getUser } = require('./utils');
 const pubsub = require('./pubsub');
 
-const context = async ({ req, connection }) => {
+const context = async ({ req, res, connection }) => {
   if (connection) {
-    return { ...connection.context, pubsub };
+    return {
+      ...connection.context,
+      pubsub,
+      req,
+      res,
+    };
   }
-
-  const token = req.headers.authorization || '';
-
-  const user = await getUser(token);
 
   return {
     SECRET,
-    user,
     pubsub,
+    req,
+    res,
+    user: req.user,
   };
 };
 
