@@ -3,6 +3,7 @@ const { gql } = require('apollo-server-express');
 const typeDefs = gql`
 type Query {
   getNotes: [Note!]!
+  me: User
 }
 
 type Mutation {
@@ -10,6 +11,7 @@ type Mutation {
   login(username: String!, password: String!): User!
   createNote(title: String, text: String): Note!
   deleteNote(id: ID!): Note!
+  logout: Boolean!
 }
 
 type Subscription {
