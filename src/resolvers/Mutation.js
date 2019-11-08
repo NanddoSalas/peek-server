@@ -1,5 +1,4 @@
 // const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { ObjectId } = require('mongoose').Types;
 const { validateInput } = require('../utils');
@@ -7,8 +6,9 @@ const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
 const Note = require('../models/Note');
 const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
+const { setTokens } = require('../auth');
 
-exports.register = async (_, args, { SECRET }) => {
+exports.register = async (_, args) => {
   await validateInput(args, registerSchema);
   const { username, password } = args;
 
@@ -17,29 +17,22 @@ exports.register = async (_, args, { SECRET }) => {
 
   try {
     await user.save();
+    return true;
   } catch (error) {
     throw new ApolloError('Some Error');
   }
-
-  const token = jwt.sign({
-    id: user.id,
-  }, SECRET);
-
-  return { token, user };
 };
 
-exports.login = async (_, args, { SECRET }) => {
+exports.login = async (_, args, { res }) => {
   const { username, password } = args;
 
   try {
     const user = await User.findOne({ username });
     if (!user.checkPassword(password)) throw new ApolloError('Invalid credentials');
 
-    const token = jwt.sign({
-      id: user.id,
-    }, SECRET);
+    setTokens(res, user);
 
-    return { token, user };
+    return user;
   } catch (error) {
     throw new ApolloError('Invalid credentials');
   }
