@@ -1,6 +1,6 @@
 // const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server');
+const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { ObjectId } = require('mongoose').Types;
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');

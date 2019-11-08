@@ -1,4 +1,4 @@
-const { UserInputError } = require('apollo-server');
+const { UserInputError } = require('apollo-server-express');
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('./config');
 const User = require('./models/User');

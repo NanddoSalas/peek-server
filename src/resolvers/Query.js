@@ -1,4 +1,4 @@
-const { ApolloError, AuthenticationError } = require('apollo-server');
+const { ApolloError, AuthenticationError } = require('apollo-server-express');
 const Note = require('../models/Note');
 
 exports.getNotes = (_, __, { user }) => {

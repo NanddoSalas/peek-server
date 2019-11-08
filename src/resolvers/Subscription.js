@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-const { withFilter } = require('apollo-server');
+const { withFilter } = require('apollo-server-express');
 const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
 
 

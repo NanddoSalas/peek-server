@@ -1,4 +1,4 @@
-const { ApolloError } = require('apollo-server');
+const { ApolloError } = require('apollo-server-express');
 const User = require('../models/User');
 
 exports.createdBy = async ({ createdBy }) => {

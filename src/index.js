@@ -1,5 +1,7 @@
 require('dotenv').config();
-const { ApolloServer, AuthenticationError } = require('apollo-server');
+const { ApolloServer, AuthenticationError } = require('apollo-server-express');
+const express = require('express');
+const http = require('http');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const db = require('./config/db');
@@ -39,8 +41,16 @@ const server = new ApolloServer({
   subscriptions: { onConnect },
 });
 
+const app = express();
+
+server.applyMiddleware({ app, path: '/' });
+
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 db.once('open', () => {
-  server.listen().then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}`);
+  httpServer.listen({ port: 4000 }, () => {
+    // eslint-disable-next-line no-console
+    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
   });
 });

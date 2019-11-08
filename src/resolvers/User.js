@@ -1,4 +1,4 @@
-const { ApolloError } = require('apollo-server');
+const { ApolloError } = require('apollo-server-express');
 const Note = require('../models/Note');
 
 exports.notes = async ({ notes: noteIds }) => {
