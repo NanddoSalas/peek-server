@@ -18,6 +18,11 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
 
+  count: {
+    type: Number,
+    default: 0,
+  },
+
   notes: [ObjectId],
 
 });
