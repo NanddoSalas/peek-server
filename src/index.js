@@ -2,10 +2,15 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
+const cookieParser = require('cookie-parser');
 const server = require('./apollo');
 const db = require('./config/db');
+const { authMiddleware } = require('./auth');
 
 const app = express();
+
+app.use(cookieParser());
+app.use(authMiddleware);
 
 server.applyMiddleware({ app, path: '/' });
 
