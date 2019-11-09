@@ -12,7 +12,14 @@ const app = express();
 app.use(cookieParser());
 app.use(authMiddleware);
 
-server.applyMiddleware({ app, path: '/' });
+server.applyMiddleware({
+  app,
+  path: '/',
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }
+});
 
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
