@@ -7,7 +7,7 @@ type Query {
 }
 
 type Mutation {
-  register(username: String!, password: String!): Boolean!
+  register(username: String!, password: String!, password2: String!): Boolean!
   login(username: String!, password: String!): User!
   createNote(title: String, text: String): Note!
   deleteNote(id: ID!): Note!

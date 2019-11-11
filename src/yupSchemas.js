@@ -19,10 +19,13 @@ exports.registerSchema = yup.object().shape({
       }
     }),
 
-  password: yup
-    .string()
-    .min(3)
-    .max(32)
-    .required(),
+  password: yup.string()
+    .min(3, 'At least 3 characters')
+    .max(32, 'Password is to long')
+    .required('Password is required'),
+
+  password2: yup.string()
+    .required('Confirm Password is required')
+    .oneOf([yup.ref('password')], 'Password do not match'),
 
 });
