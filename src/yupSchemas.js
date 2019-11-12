@@ -5,9 +5,9 @@ exports.registerSchema = yup.object().shape({
 
   username: yup
     .string()
-    .required()
-    .min(3)
-    .max(32)
+    .required('Username is required')
+    .min(3, 'At least 3 characters')
+    .max(32, 'Username is to long')
     .matches(/^[a-zA-Z0-9]+$/, 'Letters and digits only.')
     .test('unique', 'Username already in use', async (value) => {
       try {
@@ -20,9 +20,9 @@ exports.registerSchema = yup.object().shape({
     }),
 
   password: yup.string()
+    .required('Password is required')
     .min(3, 'At least 3 characters')
-    .max(32, 'Password is to long')
-    .required('Password is required'),
+    .max(32, 'Password is to long'),
 
   password2: yup.string()
     .required('Confirm Password is required')
