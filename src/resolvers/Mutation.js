@@ -82,3 +82,20 @@ exports.logout = (_, __, { res }) => {
   clearTokens(res);
   return true;
 };
+
+exports.updateNote = async (_, { id, title, text }, { user }) => {
+  if (!user) throw new AuthenticationError('Must authenticate');
+  if (!ObjectId.isValid(id)) throw new ApolloError('Some Error');
+
+  const note = await Note.findById(id);
+
+  if (!note) throw new ApolloError('Some Error');
+  // eslint-disable-next-line eqeqeq
+  if (note.createdBy != user.id) throw new ForbiddenError('Forbidden');
+
+  note.title = title;
+  note.text = text;
+  await note.save();
+
+  return note;
+};
