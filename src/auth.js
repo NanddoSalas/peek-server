@@ -1,18 +1,18 @@
 /* eslint-disable no-empty */
 const { sign, verify } = require('jsonwebtoken');
-const { SECRET, NODE_ENV } = require('./config');
+const { NODE_ENV, ACCESTOKENSECRET, REFRESHTOKENSECRET } = require('./config');
 const User = require('./models/User');
 
 function createTokens(user) {
   const accesToken = sign(
     { id: user.id },
-    SECRET,
+    ACCESTOKENSECRET,
     { expiresIn: '15min' },
   );
 
   const refreshToken = sign(
     { id: user.id, count: user.count },
-    SECRET,
+    REFRESHTOKENSECRET,
     { expiresIn: '7d' },
   );
 
@@ -38,7 +38,7 @@ async function authMiddleware(req, res, next) {
   if (!accesToken && !refreshToken) return next();
 
   try {
-    const { id } = verify(accesToken, SECRET);
+    const { id } = verify(accesToken, ACCESTOKENSECRET);
     const user = await User.findById(id);
     req.user = user;
     // Valid token
@@ -53,7 +53,7 @@ async function authMiddleware(req, res, next) {
   let data;
 
   try {
-    data = verify(refreshToken, SECRET);
+    data = verify(refreshToken, REFRESHTOKENSECRET);
   } catch (error) {
     // Invalid refreshToken
     return next();
