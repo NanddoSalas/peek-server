@@ -1,8 +1,9 @@
 const { ApolloServer, AuthenticationError } = require('apollo-server-express');
+const cookieParserMiddleware = require('cookie-parser')();
+const { authMiddleware } = require('./auth');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const { SECRET } = require('./config');
-const { getUser } = require('./utils');
 const pubsub = require('./pubsub');
 
 const context = async ({ req, res, connection }) => {
@@ -10,8 +11,6 @@ const context = async ({ req, res, connection }) => {
     return {
       ...connection.context,
       pubsub,
-      req,
-      res,
     };
   }
 
@@ -24,13 +23,13 @@ const context = async ({ req, res, connection }) => {
   };
 };
 
-const onConnect = async (connectionParams) => {
-  const token = connectionParams.authToken;
-  const user = await getUser(token);
+const onConnect = async (_, ws) => {
+  cookieParserMiddleware(ws.upgradeReq, {}, () => {});
+  await authMiddleware(ws.upgradeReq, {}, () => {});
 
-  if (!user) throw new AuthenticationError('Must authenticate');
+  if (!ws.upgradeReq.user) throw new AuthenticationError('Must authenticate');
 
-  return { user };
+  return { req: ws.upgradeReq, user: ws.upgradeReq.user };
 };
 
 const server = new ApolloServer({
