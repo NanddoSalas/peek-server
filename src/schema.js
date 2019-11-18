@@ -18,6 +18,7 @@ type Mutation {
 type Subscription {
   noteAdded: Note!
   noteDeleted: Note!
+  noteUpdated: Note!
 }
 
 type User {
