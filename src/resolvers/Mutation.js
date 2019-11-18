@@ -5,7 +5,7 @@ const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
 const Note = require('../models/Note');
-const { NOTE__ADDED, NOTE__DELETED } = require('../eventLabels');
+const { NOTE__ADDED, NOTE__DELETED, NOTE__UPDATED } = require('../eventLabels');
 const { setTokens, clearTokens } = require('../auth');
 
 exports.register = async (_, args) => {
@@ -83,7 +83,7 @@ exports.logout = (_, __, { res }) => {
   return true;
 };
 
-exports.updateNote = async (_, { id, title, text }, { user }) => {
+exports.updateNote = async (_, { id, title, text }, { user, pubsub }) => {
   if (!user) throw new AuthenticationError('Must authenticate');
   if (!ObjectId.isValid(id)) throw new ApolloError('Some Error');
 
@@ -96,6 +96,8 @@ exports.updateNote = async (_, { id, title, text }, { user }) => {
   note.title = title;
   note.text = text;
   await note.save();
+
+  pubsub.publish(NOTE__UPDATED, { noteUpdated: note });
 
   return note;
 };
