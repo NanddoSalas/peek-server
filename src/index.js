@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const server = require('./apollo');
 const db = require('./config/db');
 const { authMiddleware } = require('./auth');
+const { FRONTEND_URL, PORT, NODE_ENV } = require('./config');
 
 const app = express();
 
@@ -16,17 +17,19 @@ server.applyMiddleware({
   app,
   path: '/',
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: FRONTEND_URL,
     credentials: true,
-  }
+  },
 });
 
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 db.once('open', () => {
-  httpServer.listen({ port: 4000 }, () => {
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
-    console.log(`🚀 Server ready at ws://localhost:4000${server.subscriptionsPath}`);
+  httpServer.listen({ port: PORT }, () => {
+    if (NODE_ENV === 'development') {
+      console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`🚀 Server ready at ws://localhost:${PORT}${server.subscriptionsPath}`);
+    }
   });
 });

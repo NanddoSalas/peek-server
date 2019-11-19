@@ -5,6 +5,7 @@ const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const { SECRET } = require('./config');
 const pubsub = require('./pubsub');
+const { ENGINE_API_KEY, ENGINE_SCHEMA_TAG, DEBUGPRINTREPORTS } = require('./config').APOLLO;
 
 const context = async ({ req, res, connection }) => {
   if (connection) {
@@ -38,6 +39,11 @@ const server = new ApolloServer({
   context,
   subscriptions: { onConnect, path: '/subscriptions' },
   playground: { subscriptionEndpoint: '/subscriptions' },
+  engine: {
+    apiKey: ENGINE_API_KEY,
+    schemaTag: ENGINE_SCHEMA_TAG,
+    debugPrintReports: DEBUGPRINTREPORTS,
+  },
 });
 
 module.exports = server;
