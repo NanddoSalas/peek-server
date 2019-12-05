@@ -1,19 +1,21 @@
 /* eslint-disable no-empty */
 const { sign, verify } = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const { NODE_ENV, ACCESTOKENSECRET, REFRESHTOKENSECRET } = require('./config');
+const { GOOGLE_CLIENT_ID } = require('./config');
 const User = require('./models/User');
 
 function createTokens(user) {
-  const accesToken = sign(
-    { id: user.id },
-    ACCESTOKENSECRET,
-    { expiresIn: '15min' },
-  );
+  const accesToken = sign({ id: user.id }, ACCESTOKENSECRET, {
+    expiresIn: '15min',
+  });
 
   const refreshToken = sign(
     { id: user.id, count: user.count },
     REFRESHTOKENSECRET,
-    { expiresIn: '7d' },
+    {
+      expiresIn: '7d',
+    },
   );
 
   return { accesToken, refreshToken };
@@ -82,9 +84,24 @@ function clearTokens(res) {
   res.clearCookie('refreshToken');
 }
 
+async function verifyGoogleToken(token) {
+  const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+
+  if (!payload) throw new Error('Invalid token!');
+
+  return payload;
+}
+
 module.exports = {
   createTokens,
   setTokens,
   authMiddleware,
   clearTokens,
+  verifyGoogleToken,
 };
