@@ -28,8 +28,8 @@ server.installSubscriptionHandlers(httpServer);
 db.once('open', () => {
   httpServer.listen({ port: PORT }, () => {
     if (NODE_ENV === 'development') {
-      console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
-      console.log(`🚀 Server ready at ws://localhost:${PORT}${server.subscriptionsPath}`);
+      console.log(`Ready at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`Ready at ws://localhost:${PORT}${server.subscriptionsPath}`);
     }
   });
 });
