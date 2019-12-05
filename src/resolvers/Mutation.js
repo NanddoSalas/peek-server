@@ -1,12 +1,17 @@
 // const User = require('../models/User');
-const { ApolloError, AuthenticationError, ForbiddenError } = require('apollo-server-express');
+const {
+  ApolloError,
+  AuthenticationError,
+  ForbiddenError,
+} = require('apollo-server-express');
 const { ObjectId } = require('mongoose').Types;
 const { validateInput } = require('../utils');
 const { registerSchema } = require('../yupSchemas');
 const User = require('../models/User');
 const Note = require('../models/Note');
+const GoogleProfile = require('../models/GoogleProfile');
 const { NOTE__ADDED, NOTE__DELETED, NOTE__UPDATED } = require('../eventLabels');
-const { setTokens, clearTokens } = require('../auth');
+const { setTokens, clearTokens, verifyGoogleToken } = require('../auth');
 
 exports.register = async (_, args) => {
   await validateInput(args, registerSchema);
@@ -28,7 +33,9 @@ exports.login = async (_, args, { res }) => {
 
   try {
     const user = await User.findOne({ username });
-    if (!user.checkPassword(password)) throw new ApolloError('Invalid credentials');
+    if (!user.checkPassword(password)) {
+      throw new ApolloError('Invalid credentials');
+    }
 
     setTokens(res, user);
 
@@ -36,6 +43,56 @@ exports.login = async (_, args, { res }) => {
   } catch (error) {
     throw new ApolloError('Invalid credentials');
   }
+};
+
+exports.googleAuth = async (_, { token }, { res }) => {
+  let payload;
+  try {
+    payload = await verifyGoogleToken(token);
+  } catch (error) {
+    return null;
+  }
+
+  let googleProfile;
+
+  try {
+    googleProfile = await GoogleProfile.findOne({ ProfileId: payload.sub });
+  } catch (error) {
+    return null;
+  }
+
+  if (googleProfile) {
+    const user = await User.findById(googleProfile.user);
+    setTokens(res, user);
+    return user;
+  }
+
+  const user = new User({
+    name: payload.name,
+    email: payload.email,
+    googleProfile: payload.sub,
+  });
+
+  try {
+    await user.save();
+  } catch (error) {
+    return null;
+  }
+
+  googleProfile = await GoogleProfile.create({
+    ProfileId: payload.sub,
+    user: user.id,
+  });
+
+  try {
+    await googleProfile.save();
+  } catch (error) {
+    return null;
+  }
+
+  setTokens(res, user);
+
+  return user;
 };
 
 exports.createNote = async (_, args, { user, pubsub }) => {
