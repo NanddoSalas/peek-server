@@ -1,3 +1,4 @@
+/* eslint-disable space-before-function-paren */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -5,17 +6,26 @@ const bcrypt = require('bcrypt');
 const { ObjectId } = mongoose.Schema.Types;
 
 const UserSchema = new mongoose.Schema({
-
-  username: {
+  email: {
     type: String,
-    required: true,
-    unique: true,
     index: true,
+    unique: true,
+    required: true,
+  },
+
+  name: {
+    type: String,
+    default: '',
   },
 
   password: {
     type: String,
-    required: true,
+    default: '',
+  },
+
+  googleProfile: {
+    type: String,
+    default: '',
   },
 
   count: {
@@ -24,14 +34,13 @@ const UserSchema = new mongoose.Schema({
   },
 
   notes: [ObjectId],
-
 });
 
-UserSchema.methods.setPassword = function (password) {
+UserSchema.methods.setPassword = function(password) {
   this.password = bcrypt.hashSync(password, 10);
 };
 
-UserSchema.methods.checkPassword = function (password) {
+UserSchema.methods.checkPassword = function(password) {
   return bcrypt.compareSync(password, this.password);
 };
 
