@@ -14,9 +14,12 @@ const {
   ENGINE_API_KEY,
   ENGINE_SCHEMA_TAG,
   DEBUGPRINTREPORTS,
+  GOOGLE_CLIENT_ID,
 } = process.env;
 
 module.exports = {
+  GOOGLE_CLIENT_ID,
+
   APOLLO: {
     ENGINE_API_KEY,
     ENGINE_SCHEMA_TAG,
@@ -31,5 +34,6 @@ module.exports = {
   ACCESTOKENSECRET: ACCESTOKENSECRET || 'secret1',
   REFRESHTOKENSECRET: REFRESHTOKENSECRET || 'secret2',
 
-  mongoUri: MONGO_URI || `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
+  mongoUri:
+    MONGO_URI || `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
 };
